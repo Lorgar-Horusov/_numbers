@@ -144,6 +144,39 @@ class CodesDequallyTree:
         return result
 
 
+class HammingCodes:
+    def __init__(self):
+        pass
+
+    def calculate_m(self, *args):
+        if len(args) != 4:
+            raise ValueError("HammingCodes requires exactly 4 arguments.")
+        k4, k3, k2, k1 = args
+        m1 = k4 ^ k3 ^ k1
+        m2 = k4 ^ k2 ^ k1
+        m3 = k3 ^ k2 ^ k1
+        return [m1, m2, m3]
+
+    def complectate_mk(self, k: list, m: list):
+        m1, m2, m3 = m
+        k4, k3, k2, k1 = k
+        mk = [m1, m2, k4, m3, k3, k2, k1]
+        return mk
+
+    def find_errors(self, mk_test: list):
+        mtest1, m2test, k4test, m3test, k3test, k2test, k1test = mk_test
+        ktest = [k1test, k2test, k3test, k4test]
+        calculated_m = self.calculate_m(*ktest)
+
+        # Сравниваем рассчитанные значения m с переданными
+        errors = []
+        for i, (calculated, test) in enumerate(zip(calculated_m, [mtest1, m2test, m3test])):
+            if calculated != test:
+                errors.append(i + 1)  # Позиция ошибки (1-based index)
+
+        return errors
+
+
 if __name__ == "__main__":
     ecc = CodesDequallyTree()
 
@@ -176,5 +209,22 @@ if __name__ == "__main__":
     print(f"Остаток R(x): {Rx_binary}")
     print(f"F(x): {Fx_binary}")
     print(f"P(x) * Q(x): {PQ_binary}")
+    print("-----")
 
+    # Пример использования
+    hamming = HammingCodes()
+    k_values = [1, 0, 1, 1]  # k4, k3, k2, k1
+    m_values = hamming.calculate_m(*k_values)
+    mk = hamming.complectate_mk(k_values, m_values)
+
+    # Проверка на ошибки
+    mk_test = [0, 0, 1, 0, 1, 0, 1]  # Пример тестового значения
+    error_positions = hamming.find_errors(mk_test)
+
+    if error_positions:
+        print(f"Ошибки найдены на позициях: {error_positions}")
+        print(f'оригинал {mk}')
+        print(f'тест {mk_test}')
+    else:
+        print("Ошибок не найдено.")
 
