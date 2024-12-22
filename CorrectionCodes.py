@@ -1,7 +1,7 @@
 import math
 
 
-class CodesDequallyTree:
+class CodesEquallyTree:
     def __init__(self):
         self._polynomials = {
             1: ["X^1+1"],
@@ -163,22 +163,69 @@ class HammingCodes:
         mk = [m1, m2, k4, m3, k3, k2, k1]
         return mk
 
-    def find_errors(self, mk_test: list):
+    def find_errors(self, k_original: list, mk_test: list):
+        k_original = [int(bit) for bit in k_original]
+        calculated_m_orig = self.calculate_m(*k_original)
+        mk_orig = self.complectate_mk(k_original, calculated_m_orig)
         mtest1, m2test, k4test, m3test, k3test, k2test, k1test = mk_test
         ktest = [k1test, k2test, k3test, k4test]
         calculated_m = self.calculate_m(*ktest)
-
+        print(mk_orig)
+        print(mk_test)
         # Сравниваем рассчитанные значения m с переданными
         errors = []
-        for i, (calculated, test) in enumerate(zip(calculated_m, [mtest1, m2test, m3test])):
-            if calculated != test:
-                errors.append(i + 1)  # Позиция ошибки (1-based index)
-
+        for i, j in enumerate(mk_orig):
+            print(i, j)
+            if j != mk_test[i]:
+                errors.append(i+1)
         return errors
 
 
+class CodesEquallyFour:
+    def __init__(self):
+        self._polynomials = {
+            1: ["X^1+1"],
+            2: ["X^2+X+1"],
+            3: ["X^3+X+1", "X^3+X^2+1"],
+            4: ["X^4+X+1", "X^4+X^3+1", "X^4+X^3+X^2+X+1"],
+            5: ["X^5+X^2+1", "X^5+X^3+1", "X^5+X^3+X^2+X+1", "X^5+X^4+X^2+X+1", "X^5+X^4+X^3+X+1", "X^5+X^4+X^3+X^2+1"],
+            6: ["X^6+X+1"],
+            7: ["X^7+X^3+1"],
+            8: ["X^8+X^4+X^3+X^2+1"],
+            9: ["X^9+X^4+1"],
+            10: ["X^10+X^3+1"]
+        }
+
+    @staticmethod
+    def calculate_m(k=None, n=None):
+        if k is not None:
+            m = 1 + math.ceil(math.log2((k + 1) + math.ceil(math.log2(k + 1))))
+        elif n is not None:
+            m = 0
+            while True:
+                if math.ceil(math.log2(n + 1)) == m:
+                    break
+                m += 1
+        else:
+            raise ValueError("Необходимо указать либо k, либо n")
+
+        return m
+
+    def select_polynomial(self, m, d):
+        if m in self._polynomials:
+            candidates = [poly for poly in self._polynomials[m] if self.count_non_zero_terms(poly) >= d]
+            if candidates:
+                selected_polynomial = min(candidates, key=self.count_non_zero_terms)
+                return selected_polynomial
+        return None
+
+    @staticmethod
+    def count_non_zero_terms(polynomial):
+        return polynomial.count('X') + polynomial.count('1')
+
+
 if __name__ == "__main__":
-    ecc = CodesDequallyTree()
+    ecc = CodesEquallyTree()
 
     gx = "1100"  # Пример G(x)
     k = len(gx)
@@ -213,13 +260,14 @@ if __name__ == "__main__":
 
     # Пример использования
     hamming = HammingCodes()
-    k_values = [1, 0, 1, 1]  # k4, k3, k2, k1
+    k_values = [1, 1, 0, 0]  # k4, k3, k2, k1
     m_values = hamming.calculate_m(*k_values)
     mk = hamming.complectate_mk(k_values, m_values)
 
     # Проверка на ошибки
-    mk_test = [0, 0, 1, 0, 1, 0, 1]  # Пример тестового значения
-    error_positions = hamming.find_errors(mk_test)
+    mk_test = [1, 1, 1, 1, 1, 0, 0]  # Пример тестового значения
+    error_positions = hamming.find_errors(k_values, mk_test)
+    print(error_positions)
 
     if error_positions:
         print(f"Ошибки найдены на позициях: {error_positions}")

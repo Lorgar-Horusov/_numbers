@@ -26,13 +26,13 @@ modal = Modal(
     padding=20,
     max_width=744
 )
-button_activated = True
+button_activated = False
 # Если в конфигурации указано показывать лицензию, открываем модальное окно
-open_modal = st.button("License", disabled=button_activated)
+open_modal = st.button("License")
 if open_modal:
     modal.open()
 elif show_license is False:
-    button_activated = False
+    button_activated = True
     st.write("License is accepted")
     gotu_main = st.button("Go to main")
     if gotu_main:
@@ -46,7 +46,7 @@ if modal.is_open():
         value = st.checkbox("accept")
 
         # Кнопка для закрытия модального окна
-        close_button = st.button("Close")
+        close_button = st.button("Close", disabled=button_activated)
 
         if value and close_button:
             data['License']['show_license'] = False

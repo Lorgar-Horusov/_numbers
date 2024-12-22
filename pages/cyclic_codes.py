@@ -1,5 +1,5 @@
 import streamlit as st
-from CorrectionCodes import CodesDequallyTree
+from CorrectionCodes import CodesEquallyTree
 import yaml
 
 with open("config.yaml", "r", encoding="utf-8") as file:
@@ -15,7 +15,7 @@ def process_coding(gx, d):
     """
     Обрабатывает кодирование на основе заданного G(x) и d.
     """
-    code = CodesDequallyTree()
+    code = CodesEquallyTree()
     k = len(gx)
     m = code.calculate_m(k)
     selected_polynomial = code.select_polynomial(m, d)
